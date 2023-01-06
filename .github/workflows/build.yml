@@ -1,0 +1,48 @@
+name: Build
+
+on: [pull_request]
+
+jobs:
+  build-and-test:
+    name: Build & Test
+    runs-on: macos-12
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v3
+        with:
+          token: ${{ secrets.ACCESS_TOKEN }}
+      - name: Delete Package Cache
+        run: swift package reset
+      - name: Build Package
+        run: swift build
+      - name: Test Package
+        run: swift test --parallel --enable-code-coverage
+      - name: Install LLVM
+        run: |
+          brew list llvm || brew install llvm
+          brew outdated llvm || brew upgrade llvm
+      - name: Generate Code Coverage Report
+        uses: maxep/spm-lcov-action@0.3.1
+        with:
+          file-format: text
+          output-file: ./lcov.json
+      - name: Upload Code Coverage Report
+        uses: actions/upload-artifact@v3.1.1
+        with:
+          name: code-coverage-report
+          path: ./lcov.json
+  check-code-coverage:
+    name: Check for Code Coverage Threshold
+    needs: build-and-test
+    runs-on: ubuntu-latest
+    steps:
+      - name: Download Code Coverage Report
+        uses: actions/download-artifact@v3.0.1
+        with:
+          name: code-coverage-report
+          path: ./
+      - name: Check for Minimum Code Coverage
+        uses: bigmeech/gha-simple-coverage@0.1.4
+        with:
+          fail-if-below: 90
+          lcov-file-path: "./lcov.json"
