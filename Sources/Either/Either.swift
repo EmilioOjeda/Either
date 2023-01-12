@@ -42,3 +42,7 @@ public enum Either<E, A> {
     /// It returns if there is a value on the right-hand side or not.
     public var isRight: Bool { right != nil }
 }
+
+// MARK: Sendable
+
+extension Either: Sendable where E: Sendable, A: Sendable {}
