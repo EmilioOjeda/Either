@@ -86,3 +86,32 @@ public extension Either {
         }
     }
 }
+
+// MARK: Equatable
+
+extension Either: Equatable where E: Equatable, A: Equatable {
+    /// It checks if the value on the left-hand side is equal to that on the right-hand side.
+    /// - Parameters:
+    ///   - lhs: Left-hand side value.
+    ///   - rhs: Right-hand side value.
+    /// - Returns: A boolean value that tells if values on both sides are equal.
+    public static func == (lhs: Either, rhs: Either) -> Bool {
+        switch (lhs, rhs) {
+        case let (.left(lhsEValue), .left(rhsEValue)):
+            return lhsEValue == rhsEValue
+        case let (.right(lhsAValue), .right(rhsAValue)):
+            return lhsAValue == rhsAValue
+        case (.left, .right), (.right, .left):
+            return false
+        }
+    }
+}
+
+public extension Either where A: Equatable {
+    /// It checks if the value is contained/held on the right-hand side.
+    /// - Parameter a: Value to evaluate for existence.
+    /// - Returns: Whether the value is contained on the right-hand side or not.
+    func contains(_ a: A) -> Bool {
+        fold({ _ in false }, { $0 == a })
+    }
+}
