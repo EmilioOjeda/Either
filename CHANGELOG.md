@@ -1,4 +1,13 @@
-# 0.1.0 (2023-01-13)
+# [0.2.0](https://github.com/EmilioOjeda/Either/compare/0.1.0...0.2.0) (2023-01-13)
+
+
+### Features
+
+* make `Either` foldable ([27a3df4](https://github.com/EmilioOjeda/Either/commit/27a3df40c8f24dc4f58ae174a55f8291527286db))
+
+
+
+# [0.1.0](https://github.com/EmilioOjeda/Either/compare/de47c35514aba843c928a37156b4f4a06c218e22...0.1.0) (2023-01-13)
 
 
 ### Features
