@@ -22,10 +22,7 @@ public enum Either<E, A> {
 
     /// It returns the value on the left-hand side if present.
     public var left: E? {
-        guard case let .left(e) = self else {
-            return nil
-        }
-        return e
+        fold(id, { _ in .none })
     }
 
     /// It returns if there is a value on the left-hand side or not.
@@ -33,16 +30,59 @@ public enum Either<E, A> {
 
     /// It returns the value on the right-hand side if present.
     public var right: A? {
-        guard case let .right(a) = self else {
-            return nil
-        }
-        return a
+        fold({ _ in .none }, id)
     }
 
     /// It returns if there is a value on the right-hand side or not.
     public var isRight: Bool { right != nil }
 }
 
+func id<A>(_ a: A) -> A { a }
+
 // MARK: Sendable
 
 extension Either: Sendable where E: Sendable, A: Sendable {}
+
+// MARK: Foldable
+
+public extension Either {
+    /// Indistinctly the case for having a value on either left-hand or right-hand sides, it folds both projections into a single type.
+    ///
+    /// It applies the `onLeft` function if this is a `left`, or the `onRight` function if this is a `right`.
+    ///
+    /// - Parameters:
+    ///   - onLeft: The transformation function for the left-hand side.
+    ///   - onRight: The transformation function for the right-hand side.
+    /// - Returns: The folded value after applying the transformation for either case.
+    func fold<Value>(
+        _ onLeft: (E) throws -> Value,
+        _ onRight: (A) throws -> Value
+    ) rethrows -> Value {
+        switch self {
+        case let .left(leftValue):
+            return try onLeft(leftValue)
+        case let .right(rightValue):
+            return try onRight(rightValue)
+        }
+    }
+
+    /// Indistinctly the case for having a value on either left-hand or right-hand sides, it folds both projections into a single type.
+    ///
+    /// It zooms-in and get the value of the `onLeftKeyPath` if this is a `left`, or of the `onRightKeyPath` if this is a `right`.
+    ///
+    /// - Parameters:
+    ///   - onLeftKeyPath: The key-path for the left-hand side.
+    ///   - onRightKeyPath: The key-path for the right-hand side.
+    /// - Returns: The folded value after getting it from the ket-path for either case.
+    func fold<Value>(
+        _ onLeftKeyPath: KeyPath<E, Value>,
+        _ onRightKeyPath: KeyPath<A, Value>
+    ) -> Value {
+        switch self {
+        case let .left(leftValue):
+            return leftValue[keyPath: onLeftKeyPath]
+        case let .right(rightValue):
+            return rightValue[keyPath: onRightKeyPath]
+        }
+    }
+}
