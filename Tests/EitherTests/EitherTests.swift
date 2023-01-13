@@ -69,4 +69,40 @@ final class EitherTests: XCTestCase {
         XCTAssertTrue(rightHandSideEither.isRight)
         XCTAssertEqual(stringLength, rightHandSideStringLength)
     }
+
+    func testEquatableForLeftHandSide() {
+        // given
+        let rightHandSideEither: Either<String, Int> = .right(0)
+        let leftLeftHandSideEither: Either<String, Int> = .left(name)
+        let rightLeftHandSideEither: Either<String, Int> = .left(name)
+        // then
+        XCTAssertTrue(rightHandSideEither != leftLeftHandSideEither)
+        XCTAssertTrue(leftLeftHandSideEither == rightLeftHandSideEither)
+    }
+
+    func testEquatableForRightHandSide() {
+        // given
+        let leftHandSideEither: Either<Int, String> = .left(0)
+        let leftRightHandSideEither: Either<Int, String> = .right(name)
+        let rightRightHandSideEither: Either<Int, String> = .right(name)
+        // then
+        XCTAssertTrue(leftHandSideEither != leftRightHandSideEither)
+        XCTAssertTrue(leftRightHandSideEither == rightRightHandSideEither)
+    }
+
+    func testContains() {
+        // given
+        let stringValue = "some string value"
+        let anotherStringValue = "some other string value"
+        // when
+        let rightEither: Either<Int, String> = .right(stringValue)
+        // then
+        XCTAssertNotEqual(stringValue, anotherStringValue)
+        XCTAssertTrue(rightEither.contains(stringValue))
+        XCTAssertFalse(rightEither.contains(anotherStringValue))
+        // when
+        let leftEither: Either<String, String> = .left(stringValue)
+        // then
+        XCTAssertFalse(leftEither.contains(stringValue))
+    }
 }
