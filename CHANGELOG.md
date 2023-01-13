@@ -1,3 +1,12 @@
+# [0.3.0](https://github.com/EmilioOjeda/Either/compare/0.2.0...0.3.0) (2023-01-13)
+
+
+### Features
+
+* make `Either` conform to the `Equatable` protocol ([b49c53d](https://github.com/EmilioOjeda/Either/commit/b49c53dc37e3fdc4ddee6ad6829cc2b2dde7fcec))
+
+
+
 # [0.2.0](https://github.com/EmilioOjeda/Either/compare/0.1.0...0.2.0) (2023-01-13)
 
 
