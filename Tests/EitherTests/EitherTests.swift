@@ -105,4 +105,31 @@ final class EitherTests: XCTestCase {
         // then
         XCTAssertFalse(leftEither.contains(stringValue))
     }
+
+    func testComparableForLeftHandSide() {
+        // given
+        let leftLeftHandSideEither: Either<Int, Int> = .left(0)
+        let rightLeftHandSideEither: Either<Int, Int> = .left(1)
+        // then
+        XCTAssertLessThan(leftLeftHandSideEither, rightLeftHandSideEither)
+        XCTAssertGreaterThan(rightLeftHandSideEither, leftLeftHandSideEither)
+    }
+
+    func testComparableForRightHandSide() {
+        // given
+        let leftRightHandSideEither: Either<Int, Int> = .right(0)
+        let rightRightHandSideEither: Either<Int, Int> = .right(1)
+        // then
+        XCTAssertLessThan(leftRightHandSideEither, rightRightHandSideEither)
+        XCTAssertGreaterThan(rightRightHandSideEither, leftRightHandSideEither)
+    }
+
+    func testComparableForLeftAgainstRight() {
+        // given
+        let leftEither: Either<Int, Int> = .left(0)
+        let rightEither: Either<Int, Int> = .right(0)
+        // then
+        XCTAssertTrue(leftEither < rightEither)
+        XCTAssertFalse(rightEither < leftEither)
+    }
 }

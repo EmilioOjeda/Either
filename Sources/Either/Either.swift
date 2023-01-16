@@ -115,3 +115,25 @@ public extension Either where A: Equatable {
         fold({ _ in false }, { $0 == a })
     }
 }
+
+// MARK: Comparable
+
+extension Either: Comparable where E: Comparable, A: Comparable {
+    /// It compares if the left-hand side value is less than the right-hand side one.
+    /// - Parameters:
+    ///   - lhs: The left-hand side value to compare.
+    ///   - rhs: The right-hand side value to compare.
+    /// - Returns: Whether the left-hand side value is less than the right-hand side one or not.
+    public static func < (lhs: Either, rhs: Either) -> Bool {
+        switch (lhs, rhs) {
+        case let (.left(lhsEValue), .left(rhsEValue)):
+            return lhsEValue < rhsEValue
+        case let (.right(lhsAValue), .right(rhsAValue)):
+            return lhsAValue < rhsAValue
+        case (.left, .right):
+            return true
+        case (.right, .left):
+            return false
+        }
+    }
+}
