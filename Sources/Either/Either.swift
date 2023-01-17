@@ -137,3 +137,16 @@ extension Either: Comparable where E: Comparable, A: Comparable {
         }
     }
 }
+
+// MARK: Monad
+
+public extension Either {
+    /// It binds the given function across the value on the right-hand side.
+    /// - Parameter transform: The binding transformation function.
+    /// - Returns: A new either functor result of the binding operation on the right-hand side value.
+    func flatMap<B>(
+        _ transform: (A) throws -> Either<E, B>
+    ) rethrows -> Either<E, B> {
+        try fold(Either<E, B>.left, transform)
+    }
+}
