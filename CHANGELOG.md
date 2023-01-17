@@ -1,3 +1,14 @@
+# [0.5.0](https://github.com/EmilioOjeda/Either/compare/0.4.0...0.5.0) (2023-01-17)
+
+
+### Features
+
+* make `Either` a Functor ([2238d7a](https://github.com/EmilioOjeda/Either/commit/2238d7a6ff85426f60e2e0c10be99d486e55eb3f))
+* make `Either` a Monad ([737a0a9](https://github.com/EmilioOjeda/Either/commit/737a0a91e1bf62473870e7459554a6ea31f5cff0))
+* make `Either` swappable ([3eb4485](https://github.com/EmilioOjeda/Either/commit/3eb44859cb15741ddadceb5551c87aa25008361b))
+
+
+
 # [0.4.0](https://github.com/EmilioOjeda/Either/compare/0.3.0...0.4.0) (2023-01-16)
 
 
