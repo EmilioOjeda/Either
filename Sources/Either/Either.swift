@@ -138,6 +138,16 @@ extension Either: Comparable where E: Comparable, A: Comparable {
     }
 }
 
+// MARK: Swappable
+
+public extension Either {
+    /// It swaps its sides. If this is a `.left`, it returns the left value in the `.right` or vice versa.
+    /// - Returns: The swapped type.
+    func swap() -> Either<A, E> {
+        fold(Either<A, E>.right, Either<A, E>.left)
+    }
+}
+
 // MARK: Functor
 
 public extension Either {

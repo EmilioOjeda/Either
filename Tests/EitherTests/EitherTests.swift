@@ -160,4 +160,20 @@ final class EitherTests: XCTestCase {
         // then
         XCTAssertEqual(name.count, eitherAfterMap.right)
     }
+
+    func testIsSwappable() {
+        // given
+        let eitherRight: Either<Int, String> = .right(name)
+        // then
+        XCTAssertTrue(eitherRight.isRight)
+        // when
+        let eitherAfterSwap = eitherRight.swap()
+        // then
+        XCTAssertTrue(eitherAfterSwap.isLeft)
+        // when
+        let eitherAfterSecondSwap = eitherAfterSwap.swap()
+        // then
+        XCTAssertTrue(eitherAfterSecondSwap.isRight)
+        XCTAssertEqual(eitherRight, eitherAfterSecondSwap)
+    }
 }
