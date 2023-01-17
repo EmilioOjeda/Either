@@ -133,6 +133,24 @@ final class EitherTests: XCTestCase {
         XCTAssertFalse(rightEither < leftEither)
     }
 
+    func testMap() {
+        // given
+        let either = Either<String, String>.right(name)
+        // when
+        let eitherAfterMap = either.map(stringLength)
+        // then
+        XCTAssertEqual(name.count, eitherAfterMap.right)
+    }
+
+    func testMapByKeyPath() {
+        // given
+        let either = Either<String, String>.right(name)
+        // when
+        let eitherAfterMap = either.map(\String.count)
+        // then
+        XCTAssertEqual(name.count, eitherAfterMap.right)
+    }
+
     func testFlatMap() {
         let getStringLength: (String) -> Either<String, Int?> = { string in .right(string.count) }
         // given
