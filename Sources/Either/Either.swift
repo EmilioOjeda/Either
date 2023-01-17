@@ -138,6 +138,28 @@ extension Either: Comparable where E: Comparable, A: Comparable {
     }
 }
 
+// MARK: Functor
+
+public extension Either {
+    /// It applies the transformation function if there is a value on the right-hand side.
+    /// - Parameter transform: Transformation function to apply.
+    /// - Returns: A new either functor result of the mapping function.
+    func map<B>(
+        _ transform: (A) throws -> B
+    ) rethrows -> Either<E, B> {
+        try flatMap { .right(try transform($0)) }
+    }
+
+    /// It gets the nested value in the key-path if there is a value on the right-hand side.
+    /// - Parameter keyPath: The key-path to read.
+    /// - Returns: A new either functor result of the reading on the right-hand side value.
+    func map<B>(
+        _ keyPath: KeyPath<A, B>
+    ) -> Either<E, B> {
+        flatMap { .right($0[keyPath: keyPath]) }
+    }
+}
+
 // MARK: Monad
 
 public extension Either {
