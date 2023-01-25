@@ -22,7 +22,7 @@ public enum Either<E, A> {
 
     /// It returns the value on the left-hand side if present.
     public var left: E? {
-        fold(id, { _ in .none })
+        fold(id) { _ in nil }
     }
 
     /// It returns if there is a value on the left-hand side or not.
@@ -30,14 +30,12 @@ public enum Either<E, A> {
 
     /// It returns the value on the right-hand side if present.
     public var right: A? {
-        fold({ _ in .none }, id)
+        fold({ _ in nil }, Optional.some)
     }
 
     /// It returns if there is a value on the right-hand side or not.
     public var isRight: Bool { right != nil }
 }
-
-func id<A>(_ a: A) -> A { a }
 
 // MARK: Sendable
 
@@ -157,7 +155,7 @@ public extension Either {
     func map<B>(
         _ transform: (A) throws -> B
     ) rethrows -> Either<E, B> {
-        try flatMap { .right(try transform($0)) }
+        try flatMap { pure(try transform($0)) }
     }
 
     /// It gets the nested value in the key-path if there is a value on the right-hand side.
@@ -166,7 +164,7 @@ public extension Either {
     func map<B>(
         _ keyPath: KeyPath<A, B>
     ) -> Either<E, B> {
-        flatMap { .right($0[keyPath: keyPath]) }
+        flatMap { pure($0[keyPath: keyPath]) }
     }
 }
 
@@ -182,3 +180,159 @@ public extension Either {
         try fold(Either<E, B>.left, transform)
     }
 }
+
+// MARK: Getting Values
+
+public extension Either {
+    /// It allows setting a fallback value when nothing is on the right-hand side.
+    /// - Parameter either: The fallback to resolve.
+    /// - Returns: Either the current or the fallback.
+    func orElse(_ either: Either) -> Either {
+        fold({ _ in either }, pure)
+    }
+
+    /// It tries to get the value on the right-hand side if any, or it gives the `fallback` back.
+    /// - Parameter fallback: The fallback value.
+    /// - Returns: Either the value on the right-hand side or the given fallback value.
+    func getOrElse(
+        _ fallback: @autoclosure () throws -> A
+    ) rethrows -> A {
+        try fold({ _ in try fallback() }, id)
+    }
+
+    /// It tries to get the value on the right-hand side - if any value - or throws the error set.
+    /// - Parameter error: The error to throw when there is no value on the right-hand side.
+    /// - Returns: The value on the right-hand side, if any.
+    func getOrThrow(
+        _ error: @autoclosure () -> some Swift.Error
+    ) throws -> A {
+        try fold({ _ in throw error() }, id)
+    }
+}
+
+public extension Either where E: Swift.Error {
+    /// It throws the error hold on the left-hand side if there is no value on the right-hand side.
+    /// - Returns: The value on the right-hand side, if any.
+    func getOrThrow() throws -> A {
+        try fold({ error in throw error }, id)
+    }
+}
+
+// MARK: Filtering
+
+public extension Either {
+    /// It produces the value set when the one on the right-hand side does not match the predicate.
+    ///
+    /// It returns `.right` with the existing value if this is a `.right` and the given predicate holds for the value on the right-hand side,
+    /// or `.left` if this is a `.right` and the given predicate does not hold for the value on the right-hand side,
+    /// or `.left` with the existing value on the left-hand side.
+    ///
+    /// - Parameters:
+    ///   - predicate: The predicate that is used to evaluate the value on the right-hand side.
+    ///   - produce: The value to produce when the predicate does not hold for the value on the right-hand side.
+    /// - Returns: Either a left or a right based on the evaluation of the predicate.
+    func filter(
+        by predicate: (A) throws -> Bool,
+        or produce: @autoclosure () throws -> E
+    ) rethrows -> Either<E, A> {
+        switch self {
+        case .left:
+            return self
+        case let .right(a):
+            return try predicate(a)
+                ? .right(a)
+                : .left(produce())
+        }
+    }
+
+    /// It produces the value set when the one on the right-hand side key-path does returns false.
+    ///
+    /// It returns `.right` with the existing value if this is a `.right` and the given key-path returns `true`,
+    /// or `.left` if this is a `.right` and the given key-path returns `false`,
+    /// or `.left` with the existing value on the left-hand side.
+    ///
+    /// - Parameters:
+    ///   - keyPath: The boolean key-path to filter by.
+    ///   - produce: The value to produce when the key-path returns false.
+    /// - Returns: Either a left or a right based on the boolean value returned by the key-path.
+    func filter(
+        by keyPath: KeyPath<A, Bool>,
+        or produce: @autoclosure () -> E
+    ) -> Either<E, A> {
+        switch self {
+        case .left:
+            return self
+        case let .right(a):
+            return a[keyPath: keyPath]
+                ? .right(a)
+                : .left(produce())
+        }
+    }
+}
+
+// MARK: Traversing
+
+public extension Either where A: Sequence {
+    /// It executes the given side-effecting function if a sequence is on the right-hand side.
+    /// - Parameter effect: The side-effecting function to execute.
+    func forEach(
+        _ effect: (A.Element) throws -> Void
+    ) rethrows {
+        try fold({ _ in }, { a in try a.forEach(effect) })
+    }
+
+    /// It returns a boolean value indicating whether every element of a sequence on the right-hand side satisfies a given predicate.
+    /// - Parameter predicate: The predicate for evaluating every element in the sequence.
+    /// - Returns: The boolean result of the evaluation of the sequence.
+    func forAll(
+        _ predicate: (A.Element) throws -> Bool
+    ) rethrows -> Bool {
+        try fold({ _ in false }, { a in try a.allSatisfy(predicate) })
+    }
+}
+
+// MARK: To Optional
+
+public extension Either {
+    /// It gets turned into `Optional`.
+    ///
+    /// - When `.left`, returns `nil`.
+    /// - When `.right`, returns the value on the right-hand side.
+    ///
+    /// - Returns: An `Optional` type value.
+    func toOptional() -> A? { right }
+}
+
+// MARK: To Result
+
+public extension Either where E: Swift.Error {
+    /// It gets turned into `Result`.
+    ///
+    /// - When `.left`, returns a `.failure` containing the error.
+    /// - When `.right`, returns a `.success` holding the value on the right-hand side.
+    ///
+    /// - Returns: A `Result` type value.
+    func toResult() -> Result<A, E> {
+        fold(Result.failure, Result.success)
+    }
+}
+
+// MARK: To Array
+
+public extension Either {
+    /// It gets turned into `Array`.
+    ///
+    /// - When `.left`, returns an empty array.
+    /// - When `.right`, returns an array holding the value on the right-hand side.
+    ///
+    /// - Returns: An `Array` type value.
+    func toArray() -> [A] {
+        fold({ _ in [] }, { a in [a] })
+    }
+}
+
+// MARK: Global Functions
+
+func id<A>(_ a: A) -> A { a }
+
+func pure<E, A>(_ a: A) -> Either<E, A> { .right(a) }

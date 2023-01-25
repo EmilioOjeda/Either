@@ -1,7 +1,15 @@
-import XCTest
 @testable import Either
+import XCTest
 
 private let stringLength: (String) -> Int = { string in string.count }
+
+private extension String {
+    var isNotEmpty: Bool { !isEmpty }
+}
+
+private enum FakeError: Error, Equatable {
+    case testError
+}
 
 final class EitherTests: XCTestCase {
     func testLeftHandSide() throws {
@@ -175,5 +183,205 @@ final class EitherTests: XCTestCase {
         // then
         XCTAssertTrue(eitherAfterSecondSwap.isRight)
         XCTAssertEqual(eitherRight, eitherAfterSecondSwap)
+    }
+
+    func testOrElse() {
+        // given
+        let givenEither: Either<String, String> = .right("right")
+        let fallbackEither: Either<String, String> = .left("fallback")
+        // when
+        let rightEither = Either<String, String>.right("right").orElse(fallbackEither)
+        // then
+        XCTAssertEqual(givenEither, rightEither)
+        // when
+        let leftEither = Either<String, String>.left(name).orElse(fallbackEither)
+        XCTAssertEqual(fallbackEither, leftEither)
+    }
+
+    func testGetOrElse() {
+        // given
+        let fallback = "Fallback"
+        let eitherLeft: Either<Int, String> = .left(0)
+        let eitherRight: Either<Int, String> = .right(name)
+        // then
+        XCTAssertNotEqual(name, fallback)
+        XCTAssertEqual(name, eitherRight.getOrElse(fallback))
+        XCTAssertEqual(fallback, eitherLeft.getOrElse(fallback))
+    }
+
+    func testGetOrThrow() throws {
+        // given
+        let fakeError: FakeError = .testError
+        let eitherLeft: Either<FakeError, String> = .left(.testError)
+        let eitherRight: Either<FakeError, String> = .right(name)
+        // when
+        do {
+            _ = try eitherLeft.getOrThrow()
+        } catch let error as FakeError {
+            // then
+            XCTAssertEqual(fakeError, error)
+        } catch {
+            XCTFail("It should not throw this error")
+        }
+        // when
+        let value = try eitherRight.getOrThrow()
+        // then
+        XCTAssertEqual(name, value)
+    }
+
+    func testGetOrThrowError() throws {
+        // given
+        let fakeError: FakeError = .testError
+        let eitherLeft: Either<Int, String> = .left(0)
+        let eitherRight: Either<Int, String> = .right(name)
+        // when
+        do {
+            _ = try eitherLeft.getOrThrow(fakeError)
+        } catch let error as FakeError {
+            // then
+            XCTAssertEqual(fakeError, error)
+        } catch {
+            XCTFail("It should not throw this error")
+        }
+        // when
+        let value = try eitherRight.getOrThrow(fakeError)
+        XCTAssertEqual(name, value)
+    }
+
+    func testFilter() {
+        // given
+        let ten = 10
+        let eleven = 11
+        let failure = "failure"
+        // then
+        XCTAssertEqual(
+            eleven,
+            Either<String, Int>
+                .right(eleven)
+                .filter(by: { eleven in eleven > ten }, or: failure)
+                .right
+        )
+        XCTAssertEqual(
+            failure,
+            Either<String, Int>
+                .right(ten)
+                .filter(by: { ten in ten > eleven }, or: failure)
+                .left
+        )
+        XCTAssertEqual(
+            name,
+            Either<String, Int>
+                .left(name)
+                .filter(by: { eleven in eleven > ten }, or: failure)
+                .left
+        )
+    }
+
+    func testFilterByKeyPath() {
+        // given
+        let fallback = 0
+        let nonEmptyString = "non empty string"
+        // then
+        XCTAssertEqual(
+            nonEmptyString,
+            Either<Int, String>
+                .right(nonEmptyString)
+                .filter(by: \.isNotEmpty, or: fallback)
+                .right
+        )
+        XCTAssertEqual(
+            fallback,
+            Either<Int, String>
+                .right(nonEmptyString)
+                .filter(by: \.isEmpty, or: fallback)
+                .left
+        )
+        XCTAssertEqual(
+            fallback,
+            Either<Int, String>
+                .left(fallback)
+                .filter(by: \.isEmpty, or: fallback.advanced(by: 1))
+                .left
+        )
+    }
+
+    func testForEach() {
+        // given
+        let array = [0, 1]
+        let called = expectation(description: "called")
+        called.expectedFulfillmentCount = array.count
+        let notCalled = expectation(description: "not called")
+        notCalled.isInverted = true
+        let leftEither: Either<String, [Int]> = .left("not called")
+        let rightEither: Either<String, [Int]> = .right(array)
+        // when
+        leftEither
+            .forEach { _ in
+                notCalled.fulfill()
+            }
+        rightEither
+            .forEach { _ in
+                called.fulfill()
+            }
+        // then
+        wait(for: [notCalled, called], timeout: 0.2)
+    }
+
+    func testForAll() {
+        let greaterThan10: (Int) -> Bool = { $0 > 10 }
+        // given
+        let assertingTrueArray = [11, 12]
+        let assertingFalseArray = [10, 11]
+        // then
+        XCTAssertTrue(assertingTrueArray.allSatisfy(greaterThan10))
+        XCTAssertFalse(assertingFalseArray.allSatisfy(greaterThan10))
+        XCTAssertTrue(
+            Either<String, [Int]>
+                .right(assertingTrueArray)
+                .forAll(greaterThan10)
+        )
+        XCTAssertFalse(
+            Either<String, [Int]>
+                .right(assertingFalseArray)
+                .forAll(greaterThan10)
+        )
+        XCTAssertFalse(
+            Either<String, [Int]>
+                .left(name)
+                .forAll(greaterThan10)
+        )
+    }
+
+    func testToOptional() {
+        // given
+        let leftEither: Either<String, String> = .left(name)
+        let rightEither: Either<String, String> = .right(name)
+        // then
+        XCTAssertNil(leftEither.toOptional())
+        XCTAssertEqual(Optional.some(name), rightEither.toOptional())
+    }
+
+    func testToResult() {
+        // given
+        let leftEither: Either<FakeError, String> = .left(.testError)
+        let rightEither: Either<FakeError, String> = .right(name)
+        // then
+        XCTAssertEqual(
+            Result<String, FakeError>.failure(.testError),
+            leftEither.toResult()
+        )
+        XCTAssertEqual(
+            Result<String, FakeError>.success(name),
+            rightEither.toResult()
+        )
+    }
+
+    func testToArray() {
+        // given
+        let leftEither: Either<String, String> = .left(name)
+        let rightEither: Either<String, String> = .right(name)
+        // then
+        XCTAssertEqual([], leftEither.toArray())
+        XCTAssertEqual([name], rightEither.toArray())
     }
 }
