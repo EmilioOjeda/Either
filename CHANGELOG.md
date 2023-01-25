@@ -1,3 +1,12 @@
+# [0.6.0](https://github.com/EmilioOjeda/Either/compare/0.5.0...0.6.0) (2023-01-25)
+
+
+### Features
+
+* add functions for getting, converting, filtering, and traversing values ([f301c2c](https://github.com/EmilioOjeda/Either/commit/f301c2c44b291c4011289de17c271ad5ad212809))
+
+
+
 # [0.5.0](https://github.com/EmilioOjeda/Either/compare/0.4.0...0.5.0) (2023-01-17)
 
 
