@@ -384,4 +384,47 @@ final class EitherTests: XCTestCase {
         XCTAssertEqual([], leftEither.toArray())
         XCTAssertEqual([name], rightEither.toArray())
     }
+
+    func testDescriptionAndDebugDescription() {
+        var eitherString: Either<String, String> = .left("test string")
+        XCTAssertEqual(#".left("test string")"#, eitherString.description)
+        XCTAssertEqual(#"Either<String, String>.left("test string")"#, eitherString.debugDescription)
+        eitherString = eitherString.orElse(.right("test string"))
+        XCTAssertEqual(#".right("test string")"#, eitherString.description)
+        XCTAssertEqual(#"Either<String, String>.right("test string")"#, eitherString.debugDescription)
+
+        var eitherInt: Either<Int, Int> = .left(3)
+        XCTAssertEqual(#".left(3)"#, eitherInt.description)
+        XCTAssertEqual(#"Either<Int, Int>.left(3)"#, eitherInt.debugDescription)
+        eitherInt = eitherInt.orElse(.right(3))
+        XCTAssertEqual(#".right(3)"#, eitherInt.description)
+        XCTAssertEqual(#"Either<Int, Int>.right(3)"#, eitherInt.debugDescription)
+
+        var eitherDouble: Either<Double, Double> = .left(4.0)
+        XCTAssertEqual(#".left(4.0)"#, eitherDouble.description)
+        XCTAssertEqual(#"Either<Double, Double>.left(4.0)"#, eitherDouble.debugDescription)
+        eitherDouble = eitherDouble.orElse(.right(4.0))
+        XCTAssertEqual(#".right(4.0)"#, eitherDouble.description)
+        XCTAssertEqual(#"Either<Double, Double>.right(4.0)"#, eitherDouble.debugDescription)
+
+        var eitherBool: Either<Bool, Bool> = .left(false)
+        XCTAssertEqual(#".left(false)"#, eitherBool.description)
+        XCTAssertEqual(#"Either<Bool, Bool>.left(false)"#, eitherBool.debugDescription)
+        eitherBool = eitherBool.orElse(.right(true))
+        XCTAssertEqual(#".right(true)"#, eitherBool.description)
+        XCTAssertEqual(#"Either<Bool, Bool>.right(true)"#, eitherBool.debugDescription)
+    }
+
+    func testDebugFunctionsDoNotMutateTheValue() {
+        // given
+        let firstEither = Either<String, String>.right(name)
+        // when
+        let secondEither = firstEither.debug()
+        // then
+        XCTAssertEqual(firstEither, secondEither)
+        // when
+        let thirdEither = secondEither.debug("test")
+        // then
+        XCTAssertEqual(secondEither, thirdEither)
+    }
 }

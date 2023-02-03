@@ -331,6 +331,52 @@ public extension Either {
     }
 }
 
+// MARK: CustomStringConvertible
+
+extension Either: CustomStringConvertible {
+    /// String representation of the Etiher's value.
+    public var description: String {
+        fold(
+            { ".left(\(String(reflecting: $0)))" },
+            { ".right(\(String(reflecting: $0)))" }
+        )
+    }
+}
+
+// MARK: CustomDebugStringConvertible
+
+extension Either: CustomDebugStringConvertible {
+    /// String representation of the Etiher's value for debugging purposes.
+    public var debugDescription: String {
+        fold(
+            { "\(Self.self).left(\(String(reflecting: $0)))" },
+            { "\(Self.self).right(\(String(reflecting: $0)))" }
+        )
+    }
+}
+
+// MARK: Debuggable
+
+public extension Either {
+    /// It prints the current Either's value to the Console - for debugging purposes.
+    /// - Returns: The Either's value without any change/mutation.
+    func debug() -> Either {
+        print(debugDescription)
+        return self
+    }
+
+    /// It allows prefixing any items to the Etiher's value before printing out to the Console - for debugging purposes.
+    /// - Parameters:
+    ///   - items: The items to prefix.
+    ///   - separator: The separator to use among the items - **blank-space** is set by default.
+    ///   - terminator: The debug string terminator - **end-of-line** is set by default.
+    /// - Returns: The Either's value without any change/mutation.
+    func debug(_ items: Any..., separator: String = " ", terminator: String = "\n") -> Either {
+        print(items + [debugDescription], separator: separator, terminator: terminator)
+        return self
+    }
+}
+
 // MARK: Global Functions
 
 func id<A>(_ a: A) -> A { a }
