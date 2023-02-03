@@ -1,3 +1,12 @@
+# [0.7.0](https://github.com/EmilioOjeda/Either/compare/0.6.0...0.7.0) (2023-02-03)
+
+
+### Features
+
+* provide an API for debugging values ([af86751](https://github.com/EmilioOjeda/Either/commit/af867516e84fdae43e4390d4bb4695602d2d71ba))
+
+
+
 # [0.6.0](https://github.com/EmilioOjeda/Either/compare/0.5.0...0.6.0) (2023-01-25)
 
 
