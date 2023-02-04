@@ -505,4 +505,21 @@ final class EitherTests: XCTestCase {
         // then
         XCTAssertEqual(secondEither, thirdEither)
     }
+
+    func testMerge() {
+        // given
+        let either = Either<String, String>.left(name)
+        // then
+        XCTAssertEqual(
+            name,
+            either.merge()
+        )
+        // then
+        XCTAssertEqual(
+            name,
+            either
+                .orElse(.right(name))
+                .merge()
+        )
+    }
 }
