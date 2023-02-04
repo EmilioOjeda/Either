@@ -16,22 +16,21 @@ private func toStringThrowing<A>(_ value: A) throws -> String {
 }
 
 final class EitherTests: XCTestCase {
-    func testLeftHandSide() throws {
+    func testLeftAndRight() {
         // given
-        let leftHandSide: Either<String, String> = .left(name)
+        var either = Either<String, String>.left(name)
         // then
-        XCTAssertTrue(leftHandSide.isLeft)
-        XCTAssertNil(leftHandSide.right)
-        XCTAssertEqual(name, leftHandSide.left)
-    }
-
-    func testRightHandSide() throws {
-        // given
-        let rightHandSide: Either<String, String> = .right(name)
+        XCTAssertTrue(either.isLeft)
+        XCTAssertFalse(either.isRight)
+        XCTAssertNil(either.right)
+        XCTAssertEqual(name, either.left)
+        // when
+        either = either.orElse(.right(name))
         // then
-        XCTAssertTrue(rightHandSide.isRight)
-        XCTAssertNil(rightHandSide.left)
-        XCTAssertEqual(name, rightHandSide.right)
+        XCTAssertTrue(either.isRight)
+        XCTAssertFalse(either.isLeft)
+        XCTAssertNil(either.left)
+        XCTAssertEqual(name, either.right)
     }
 
     func testFold() {
