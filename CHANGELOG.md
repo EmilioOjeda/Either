@@ -1,3 +1,12 @@
+# [0.8.0](https://github.com/EmilioOjeda/Either/compare/0.7.0...0.8.0) (2023-02-04)
+
+
+### Features
+
+* make `Either` a Bi-Functor ([8de82d2](https://github.com/EmilioOjeda/Either/commit/8de82d2d567a1cc22fcc216fc5f8bddef530f639))
+
+
+
 # [0.7.0](https://github.com/EmilioOjeda/Either/compare/0.6.0...0.7.0) (2023-02-03)
 
 
