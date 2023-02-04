@@ -76,12 +76,10 @@ public extension Either {
         _ onLeftKeyPath: KeyPath<E, Value>,
         _ onRightKeyPath: KeyPath<A, Value>
     ) -> Value {
-        switch self {
-        case let .left(leftValue):
-            return leftValue[keyPath: onLeftKeyPath]
-        case let .right(rightValue):
-            return rightValue[keyPath: onRightKeyPath]
-        }
+        fold(
+            { e in e[keyPath: onLeftKeyPath] },
+            { a in a[keyPath: onRightKeyPath] }
+        )
     }
 }
 
