@@ -81,6 +81,36 @@ public extension Either {
             { a in a[keyPath: onRightKeyPath] }
         )
     }
+
+    /// Indistinctly the case for having a value on either left-hand or right-hand sides, it folds both projections into a single type.
+    ///
+    /// It applies the `onLeft` function if this is a `left`, or gets the projected value on the right-hand side key-path.
+    ///
+    /// - Parameters:
+    ///   - onLeft: The transformation function for the left-hand side.
+    ///   - onRightKeyPath: The key-path for the right-hand side.
+    /// - Returns: The folded value.
+    func fold<Value>(
+        _ onLeft: (E) throws -> Value,
+        _ onRightKeyPath: KeyPath<A, Value>
+    ) rethrows -> Value {
+        try fold(onLeft, { a in a[keyPath: onRightKeyPath] })
+    }
+
+    /// Indistinctly the case for having a value on either left-hand or right-hand sides, it folds both projections into a single type.
+    ///
+    /// It gets the projected value on the left-hand side key-path if this is a `left`, or applies the `onRight` function.
+    ///
+    /// - Parameters:
+    ///   - onLeftKeyPath: The key-path for the left-hand side.
+    ///   - onRight: The transformation function for the right-hand side.
+    /// - Returns: The folded value.
+    func fold<Value>(
+        _ onLeftKeyPath: KeyPath<E, Value>,
+        _ onRight: (A) throws -> Value
+    ) rethrows -> Value {
+        try fold({ e in e[keyPath: onLeftKeyPath] }, onRight)
+    }
 }
 
 // MARK: Equatable

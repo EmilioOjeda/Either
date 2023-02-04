@@ -34,52 +34,61 @@ final class EitherTests: XCTestCase {
         XCTAssertEqual(name, rightHandSide.right)
     }
 
-    func testFoldOnLeftHandSideByKeyPath() {
+    func testFold() {
         // given
-        let leftHandSideString = name
-        let leftHandSideEither: Either<String, Int> = .left(leftHandSideString)
-        let leftHandSideStringLength = leftHandSideString.count
-        // when
-        let stringLength = leftHandSideEither.fold(\.count, \.self)
+        let either = Either<Int, Double>.left(0)
         // then
-        XCTAssertTrue(leftHandSideEither.isLeft)
-        XCTAssertEqual(stringLength, leftHandSideStringLength)
-    }
-
-    func testFoldOnRightHandSideByKeyPath() {
-        // given
-        let rightHandSideString = name
-        let rightHandSideEither: Either<Int, String> = .right(rightHandSideString)
-        let rightHandSideStringLength = rightHandSideString.count
-        // when
-        let stringLength = rightHandSideEither.fold(\.self, \.count)
+        XCTAssertEqual(
+            "0",
+            either
+                .fold(String.init(reflecting:), String.init(reflecting:))
+        )
         // then
-        XCTAssertTrue(rightHandSideEither.isRight)
-        XCTAssertEqual(stringLength, rightHandSideStringLength)
-    }
-
-    func testFoldOnLeftHandSideByFunctionMapping() {
-        // given
-        let leftHandSideString = name
-        let leftHandSideEither: Either<String, Int> = .left(leftHandSideString)
-        let leftHandSideStringLength = leftHandSideString.count
-        // when
-        let stringLength = leftHandSideEither.fold(stringLength, id)
+        XCTAssertEqual(
+            "0.0",
+            either
+                .orElse(.right(0.0))
+                .fold(String.init(reflecting:), String.init(reflecting:))
+        )
         // then
-        XCTAssertTrue(leftHandSideEither.isLeft)
-        XCTAssertEqual(stringLength, leftHandSideStringLength)
-    }
-
-    func testFoldOnRightHandSideByFunctionMapping() {
-        // given
-        let rightHandSideString = name
-        let rightHandSideEither: Either<Int, String> = .right(rightHandSideString)
-        let rightHandSideStringLength = rightHandSideString.count
-        // when
-        let stringLength = rightHandSideEither.fold(id, stringLength)
+        XCTAssertEqual(
+            "0",
+            either
+                .fold(\Int.description, String.init(reflecting:))
+        )
         // then
-        XCTAssertTrue(rightHandSideEither.isRight)
-        XCTAssertEqual(stringLength, rightHandSideStringLength)
+        XCTAssertEqual(
+            "0.0",
+            either
+                .orElse(.right(0.0))
+                .fold(\Int.description, String.init(reflecting:))
+        )
+        // then
+        XCTAssertEqual(
+            "0",
+            either
+                .fold(\Int.description, \Double.description)
+        )
+        // then
+        XCTAssertEqual(
+            "0.0",
+            either
+                .orElse(.right(0.0))
+                .fold(\Int.description, \Double.description)
+        )
+        // then
+        XCTAssertEqual(
+            "0",
+            either
+                .fold(String.init(reflecting:), \Double.description)
+        )
+        // then
+        XCTAssertEqual(
+            "0.0",
+            either
+                .orElse(.right(0.0))
+                .fold(String.init(reflecting:), \Double.description)
+        )
     }
 
     func testEquatableForLeftHandSide() {
