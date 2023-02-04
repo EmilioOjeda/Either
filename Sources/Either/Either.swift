@@ -168,6 +168,70 @@ public extension Either {
     }
 }
 
+// MARK: Bi-Functor
+
+public extension Either {
+    /// It allows doing `map` over both sides of the `Either` type.
+    /// - Parameters:
+    ///   - onLeft: The transformation function to apply to the left-hand side value.
+    ///   - onRight: The transformation function to apply to the right-hand side value.
+    /// - Returns: A rewrapped functor, result of the `bimap` operation.
+    func bimap<F, B>(
+        _ onLeft: (E) throws -> F,
+        _ onRight: (A) throws -> B
+    ) rethrows -> Either<F, B> {
+        try fold(
+            { e in .left(try onLeft(e)) },
+            { a in .right(try onRight(a)) }
+        )
+    }
+
+    /// It returns a new `Etiher` type, the result of inspecting and reading the key-paths on the projections for both sides.
+    /// - Parameters:
+    ///   - onLeftKeyPath: The key-path for the left-hand side.
+    ///   - onRightKeyPath: The key-path for the right-hand side.
+    /// - Returns: A rewrapped functor, result of the `bimap` operation.
+    func bimap<F, B>(
+        _ onLeftKeyPath: KeyPath<E, F>,
+        _ onRightKeyPath: KeyPath<A, B>
+    ) -> Either<F, B> {
+        fold(
+            { e in .left(e[keyPath: onLeftKeyPath]) },
+            { a in .right(a[keyPath: onRightKeyPath]) }
+        )
+    }
+
+    /// It allows either doing `map` over the left-hand side, or getting the value in the key-path for the projection on the right-hand side.
+    /// - Parameters:
+    ///   - onLeft: The transformation function to apply to the left-hand side value.
+    ///   - onRightKeyPath: The key-path for the right-hand side.
+    /// - Returns: A rewrapped functor, result of the `bimap` operation.
+    func bimap<F, B>(
+        _ onLeft: (E) throws -> F,
+        _ onRightKeyPath: KeyPath<A, B>
+    ) rethrows -> Either<F, B> {
+        try fold(
+            { e in .left(try onLeft(e)) },
+            { a in .right(a[keyPath: onRightKeyPath]) }
+        )
+    }
+
+    /// It allows either getting the value in the key-path for the projection on the left-hand side, or doing `map` over the right-hand side.
+    /// - Parameters:
+    ///   - onLeftKeyPath: The key-path for the left-hand side.
+    ///   - onRight: The transformation function to apply to the right-hand side value.
+    /// - Returns: A rewrapped functor, result of the `bimap` operation.
+    func bimap<F, B>(
+        _ onLeftKeyPath: KeyPath<E, F>,
+        _ onRight: (A) throws -> B
+    ) rethrows -> Either<F, B> {
+        try fold(
+            { e in .left(e[keyPath: onLeftKeyPath]) },
+            { a in .right(try onRight(a)) }
+        )
+    }
+}
+
 // MARK: Monad
 
 public extension Either {

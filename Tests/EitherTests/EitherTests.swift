@@ -11,6 +11,10 @@ private enum FakeError: Error, Equatable {
     case testError
 }
 
+private func toStringThrowing<A>(_ value: A) throws -> String {
+    throw FakeError.testError
+}
+
 final class EitherTests: XCTestCase {
     func testLeftHandSide() throws {
         // given
@@ -157,6 +161,72 @@ final class EitherTests: XCTestCase {
         let eitherAfterMap = either.map(\String.count)
         // then
         XCTAssertEqual(name.count, eitherAfterMap.right)
+    }
+
+    func testBimapForLeftAndRightHandSidesFunctions() {
+        // given
+        let either = Either<Int, Int>.left(0)
+
+        // when
+        let either1 = either.bimap(String.init(reflecting:), String.init(reflecting:))
+        // then
+        XCTAssertTrue((either1 as Any) is Either<String, String>)
+
+        // when
+        let either2 = either.orElse(.right(0)).bimap(String.init(reflecting:), String.init(reflecting:))
+        // then
+        XCTAssertTrue((either2 as Any) is Either<String, String>)
+    }
+
+    func testBimapForLeftAndRightHandSidesKeyPaths() {
+        // given
+        let either = Either<Int, Int>.left(0)
+
+        // when
+        let either1 = either.bimap(\Int.description, \Int.description)
+        // then
+        XCTAssertTrue((either1 as Any) is Either<String, String>)
+
+        // when
+        let either2 = either.orElse(.right(0)).bimap(\Int.description, \Int.description)
+        // then
+        XCTAssertTrue((either2 as Any) is Either<String, String>)
+    }
+
+    func testBimapForLeftHandSideFunctionAndRightHandSideKeyPath() {
+        // given
+        let either = Either<Int, Int>.left(0)
+
+        // when
+        let either1 = either.bimap(String.init(reflecting:), \Int.description)
+        // then
+        XCTAssertTrue((either1 as Any) is Either<String, String>)
+
+        // then
+        XCTAssertThrowsError(try either.bimap(toStringThrowing(_:), \Int.description))
+
+        // when
+        let either2 = either.orElse(.right(0)).bimap(String.init(reflecting:), \Int.description)
+        // then
+        XCTAssertTrue((either2 as Any) is Either<String, String>)
+    }
+
+    func testBimapForLeftHandSideKeyPathAndRightHandSideFunction() {
+        // given
+        let either = Either<Int, Int>.left(0)
+
+        // when
+        let either1 = either.bimap(\Int.description, String.init(reflecting:))
+        // then
+        XCTAssertTrue((either1 as Any) is Either<String, String>)
+
+        // when
+        let either2 = either.orElse(.right(0)).bimap(\Int.description, String.init(reflecting:))
+        // then
+        XCTAssertTrue((either2 as Any) is Either<String, String>)
+
+        // then
+        XCTAssertThrowsError(try either.orElse(.right(0)).bimap(\Int.description, toStringThrowing(_:)))
     }
 
     func testFlatMap() {
