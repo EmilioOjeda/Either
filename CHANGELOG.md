@@ -1,3 +1,13 @@
+# [0.9.0](https://github.com/EmilioOjeda/Either/compare/0.8.0...0.9.0) (2023-02-04)
+
+
+### Features
+
+* add Scala's `MergeableEither` like API ([ddaa3df](https://github.com/EmilioOjeda/Either/commit/ddaa3df8a521d412fa315faed2ee0eed14e44db9))
+* **fold:** extend the API to accept a mix of functions and key paths ([8467f87](https://github.com/EmilioOjeda/Either/commit/8467f87319173bfe350cf58fd77f1f764625d5ff))
+
+
+
 # [0.8.0](https://github.com/EmilioOjeda/Either/compare/0.7.0...0.8.0) (2023-02-04)
 
 
