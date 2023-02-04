@@ -174,6 +174,20 @@ public extension Either {
     }
 }
 
+// MARK: Mergeable
+
+public extension Either where E == A {
+    /// It allows a `merge` operation when both sides are of the same type.
+    ///
+    /// The most close Swift's implementation based on Scala's `MergeableEither[A]` constructor, would be when left and right hand sides are of the same type.
+    /// This means that `Either<E, A>` is implicitely equals than `Either<A, A>`.
+    ///
+    /// - Returns: The value result of the `merge` operation.
+    func merge() -> A {
+        fold(id, id)
+    }
+}
+
 // MARK: Functor
 
 public extension Either {
