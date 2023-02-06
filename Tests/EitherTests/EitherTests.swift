@@ -522,4 +522,19 @@ final class EitherTests: XCTestCase {
                 .merge()
         )
     }
+
+    func testIfThenElse() {
+        // given
+        let empty = ""
+        // then
+        XCTAssertEqual(
+            Either<Int, String>.right(name),
+            Either.if(empty.isEmpty, then: name, else: 1)
+        )
+        // then
+        XCTAssertEqual(
+            Either<Int, String>.left(1),
+            Either.if(empty.isNotEmpty, then: name, else: 1)
+        )
+    }
 }
