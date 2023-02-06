@@ -597,4 +597,12 @@ final class EitherTests: XCTestCase {
         wait(for: [called], timeout: 0.1)
         XCTAssertNotEqual(either, either3)
     }
+
+    func testError() {
+        // given
+        let either: Either<FakeError, String> = .error(.testError)
+        let either2: Either<FakeError, String> = .left(.testError)
+        // then
+        XCTAssertEqual(either, either2)
+    }
 }

@@ -64,6 +64,15 @@ public enum Either<E, A> {
     }
 }
 
+public extension Either where E: Swift.Error {
+    /// It adds a syntactic-sugar function for setting errors.
+    /// - Parameter error: The error to set to the left-hand side.
+    /// - Returns: An `Either` value.
+    static func error(_ error: E) -> Either {
+        .left(error)
+    }
+}
+
 // MARK: Effects
 
 public extension Either {
