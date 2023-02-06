@@ -548,6 +548,7 @@ extension Either: CustomDebugStringConvertible {
 public extension Either {
     /// It prints the current Either's value to the Console - for debugging purposes.
     /// - Returns: The Either's value without any change/mutation.
+    @discardableResult
     func debug() -> Either {
         print(debugDescription)
         return self
@@ -559,6 +560,7 @@ public extension Either {
     ///   - separator: The separator to use among the items - **blank-space** is set by default.
     ///   - terminator: The debug string terminator - **end-of-line** is set by default.
     /// - Returns: The Either's value without any change/mutation.
+    @discardableResult
     func debug(_ items: Any..., separator: String = " ", terminator: String = "\n") -> Either {
         print(items + [debugDescription], separator: separator, terminator: terminator)
         return self
