@@ -7,8 +7,18 @@ private extension String {
     var isNotEmpty: Bool { !isEmpty }
 }
 
-private enum FakeError: Error, Equatable {
+private enum FakeError: LocalizedError, Equatable {
     case testError
+    case anotherError
+
+    var errorDescription: String? {
+        switch self {
+        case .testError:
+            return "testError"
+        case .anotherError:
+            return "anotherError"
+        }
+    }
 }
 
 private func toStringThrowing<A>(_ value: A) throws -> String {
@@ -171,6 +181,25 @@ final class EitherTests: XCTestCase {
         XCTAssertEqual(name.count, eitherAfterMap.right)
     }
 
+    func testMapError() {
+        // given
+        let either: Either<FakeError, String> = .left(.testError)
+        // when
+        let either2 = either.mapError { _ in FakeError.anotherError }
+        // then
+        XCTAssertNotEqual(either, either2)
+        XCTAssertEqual(FakeError.anotherError, either2.left)
+    }
+
+    func testMapErrorByKeyPath() {
+        // given
+        let either: Either<FakeError, String> = .left(.testError)
+        // when
+        let either2 = either.mapError(\.localizedDescription)
+        // then
+        XCTAssertEqual("testError", either2.left)
+    }
+
     func testBimapForLeftAndRightHandSidesFunctions() {
         // given
         let either = Either<Int, Int>.left(0)
@@ -245,6 +274,16 @@ final class EitherTests: XCTestCase {
         let eitherAfterMap = either.flatMap(getStringLength)
         // then
         XCTAssertEqual(name.count, eitherAfterMap.right)
+    }
+
+    func testFlatMapError() {
+        // given
+        let either: Either<FakeError, String> = .left(.testError)
+        // when
+        let either2 = either.flatMapError { _ in .left(FakeError.anotherError) }
+        // then
+        XCTAssertNotEqual(either, either2)
+        XCTAssertEqual(FakeError.anotherError, either2.left)
     }
 
     func testIsSwappable() {
