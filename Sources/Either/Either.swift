@@ -35,6 +35,33 @@ public enum Either<E, A> {
 
     /// It returns if there is a value on the right-hand side or not.
     public var isRight: Bool { right != nil }
+
+    /// It returns an `Either` value based on the result of the evaluation of the `condition`.
+    ///
+    /// If the `condition` is satisfied, it returns the given `then` (`pass`) in the right-hand side, otherwise, it return the given `else` (`fail`) in left-hand side.
+    ///
+    /// This is Swift's version of Scala's `cond` function:
+    ///
+    ///     /**
+    ///      * Scala
+    ///      */
+    ///     def cond[A, B](test: Boolean, right: => B, left: => A): Either[A, B]
+    ///
+    /// - Parameters:
+    ///   - condition: The condition to evaluate.
+    ///   - pass: The value to set in the right-hand side.
+    ///   - fail: The value to set in the left-hand side.
+    /// - Returns: An `Either` value.
+    public static func `if`(
+        _ condition: @autoclosure () -> Bool,
+        then pass: @autoclosure () -> A,
+        else fail: @autoclosure () -> E
+    ) -> Either {
+        guard condition() else {
+            return .left(fail())
+        }
+        return .right(pass())
+    }
 }
 
 // MARK: Sendable
