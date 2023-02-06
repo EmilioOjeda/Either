@@ -64,6 +64,21 @@ public enum Either<E, A> {
     }
 }
 
+// MARK: Effects
+
+public extension Either {
+    /// It executes the effect passed as functions when a value is on the right-hand side.
+    /// - Parameter effect: The effect to execute.
+    /// - Returns: An unchanged `Either` value.
+    @discardableResult
+    func then(
+        _ effect: (A) throws -> Void
+    ) rethrows -> Either {
+        _ = try right.map(effect)
+        return self
+    }
+}
+
 // MARK: Sendable
 
 extension Either: Sendable where E: Sendable, A: Sendable {}

@@ -537,4 +537,25 @@ final class EitherTests: XCTestCase {
             Either.if(empty.isNotEmpty, then: name, else: 1)
         )
     }
+
+    func testThen() {
+        // given
+        let either = Either<String, String>.left(name)
+        let called = expectation(description: "called")
+        let notCalled = expectation(description: "not called")
+        // when
+        notCalled.isInverted = true
+        let either2 = either
+            .then { _ in notCalled.fulfill() }
+        // then
+        wait(for: [notCalled], timeout: 0.1)
+        XCTAssertEqual(either, either2)
+        // when
+        let either3 = either
+            .orElse(.right(name))
+            .then { _ in called.fulfill() }
+        // then
+        wait(for: [called], timeout: 0.1)
+        XCTAssertNotEqual(either, either3)
+    }
 }
