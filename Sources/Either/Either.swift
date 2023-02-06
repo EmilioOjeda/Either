@@ -239,7 +239,7 @@ public extension Either {
     func map<B>(
         _ transform: (A) throws -> B
     ) rethrows -> Either<E, B> {
-        try flatMap { pure(try transform($0)) }
+        try flatMap { a in pure(try transform(a)) }
     }
 
     /// It gets the nested value in the key-path if there is a value on the right-hand side.
@@ -248,7 +248,27 @@ public extension Either {
     func map<B>(
         _ keyPath: KeyPath<A, B>
     ) -> Either<E, B> {
-        flatMap { pure($0[keyPath: keyPath]) }
+        flatMap { a in pure(a[keyPath: keyPath]) }
+    }
+}
+
+public extension Either where E: Swift.Error {
+    /// It maps the error on the left-hand side.
+    /// - Parameter transform: Transformation function to apply.
+    /// - Returns: A new either functor result of the mapping function.
+    func mapError<F>(
+        _ transform: (E) -> F
+    ) -> Either<F, A> {
+        flatMapError { e in .left(transform(e)) }
+    }
+
+    /// It gets the nested value in the key-path if there is a value on the left-hand side.
+    /// - Parameter keyPath: The key-path to read.
+    /// - Returns: A new either functor result of the reading on the left-hand side value.
+    func mapError<F>(
+        _ keyPath: KeyPath<E, F>
+    ) -> Either<F, A> {
+        flatMapError { e in .left(e[keyPath: keyPath]) }
     }
 }
 
@@ -326,6 +346,17 @@ public extension Either {
         _ transform: (A) throws -> Either<E, B>
     ) rethrows -> Either<E, B> {
         try fold(Either<E, B>.left, transform)
+    }
+}
+
+public extension Either where E: Swift.Error {
+    /// It binds the given function across the error on the left-hand side.
+    /// - Parameter transform: The binding transformation function.
+    /// - Returns: A new either functor result of the binding operation on the left-hand side value.
+    func flatMapError<F>(
+        _ transform: (E) -> Either<F, A>
+    ) -> Either<F, A> {
+        fold(transform, Either<F, A>.right)
     }
 }
 
