@@ -286,6 +286,72 @@ final class EitherTests: XCTestCase {
         XCTAssertEqual(FakeError.anotherError, either2.left)
     }
 
+    func testFlatten() {
+        // given
+        let eitherLeft: Either<String, Either<String, Int>> = .left(name)
+        let eitherRightLeft: Either<String, Either<String, Int>> = .right(.left(name))
+        let eitherRightRight: Either<String, Either<String, Int>> = .right(.right(0))
+        // when
+        let flattenedEitherLeft = eitherLeft.flatten()
+        let flattenedEitherRightLeft = eitherRightLeft.flatten()
+        let flattenedEitherRightRight = eitherRightRight.flatten()
+        // then
+        XCTAssertEqual(flattenedEitherLeft, flattenedEitherRightLeft)
+        XCTAssertNotEqual(flattenedEitherRightLeft, flattenedEitherRightRight)
+        // then
+        XCTAssertTrue((flattenedEitherLeft as Any) is Either<String, Int>)
+        XCTAssertTrue((flattenedEitherRightLeft as Any) is Either<String, Int>)
+        XCTAssertTrue((flattenedEitherRightRight as Any) is Either<String, Int>)
+        // then
+        XCTAssertEqual(name, flattenedEitherLeft.left)
+        XCTAssertEqual(name, flattenedEitherRightLeft.left)
+        XCTAssertEqual(0, flattenedEitherRightRight.right)
+    }
+
+    func testJoinRight() {
+        // given
+        let eitherLeft: Either<String, Either<String, Int>> = .left(name)
+        let eitherRightLeft: Either<String, Either<String, Int>> = .right(.left(name))
+        let eitherRightRight: Either<String, Either<String, Int>> = .right(.right(0))
+        // when
+        let rightJoinedEitherLeft = eitherLeft.joinRight()
+        let rightJoinedEitherRightLeft = eitherRightLeft.joinRight()
+        let rightJoinedEitherRightRight = eitherRightRight.joinRight()
+        // then
+        XCTAssertEqual(rightJoinedEitherLeft, rightJoinedEitherRightLeft)
+        XCTAssertNotEqual(rightJoinedEitherRightLeft, rightJoinedEitherRightRight)
+        // then
+        XCTAssertTrue((rightJoinedEitherLeft as Any) is Either<String, Int>)
+        XCTAssertTrue((rightJoinedEitherRightLeft as Any) is Either<String, Int>)
+        XCTAssertTrue((rightJoinedEitherRightRight as Any) is Either<String, Int>)
+        // then
+        XCTAssertEqual(name, rightJoinedEitherLeft.left)
+        XCTAssertEqual(name, rightJoinedEitherRightLeft.left)
+        XCTAssertEqual(0, rightJoinedEitherRightRight.right)
+    }
+
+    func testJoinLeft() {
+        // given
+        let eitherRight: Either<Either<String, Int>, Int> = .right(0)
+        let eitherLeftLeft: Either<Either<String, Int>, Int> = .left(.left(name))
+        let eitherLeftRight: Either<Either<String, Int>, Int> = .left(.right(0))
+        // when
+        let leftJoinedEitherRight = eitherRight.joinLeft()
+        let leftJoinedEitherLeftLeft = eitherLeftLeft.joinLeft()
+        let leftJoinedEitherLeftRight = eitherLeftRight.joinLeft()
+        // then
+        XCTAssertEqual(leftJoinedEitherRight, leftJoinedEitherLeftRight)
+        XCTAssertNotEqual(leftJoinedEitherLeftLeft, leftJoinedEitherLeftRight)
+        // then
+        XCTAssertTrue((leftJoinedEitherRight as Any) is Either<String, Int>)
+        XCTAssertTrue((leftJoinedEitherLeftLeft as Any) is Either<String, Int>)
+        XCTAssertTrue((leftJoinedEitherLeftRight as Any) is Either<String, Int>)
+        // then
+        XCTAssertEqual(0, leftJoinedEitherRight.right)
+        XCTAssertEqual(name, leftJoinedEitherLeftLeft.left)
+        XCTAssertEqual(0, leftJoinedEitherLeftRight.right)
+    }
+
     func testIsSwappable() {
         // given
         let eitherRight: Either<Int, String> = .right(name)
