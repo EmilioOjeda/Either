@@ -722,4 +722,18 @@ final class EitherTests: XCTestCase {
         XCTAssertEqual([1, 2, 3, 4, 5], lefts)
         XCTAssertEqual([6, 7, 8, 9, 10], rights)
     }
+
+    func testHashable() {
+        // given
+        let lefts = (1...5)
+            .map { _ in Either.if(false, then: name, else: 0) }
+        let rights = (1...5)
+            .map { _ in Either.if(true, then: name, else: 0) }
+        // when
+        let set = Set([lefts, rights].flatMap(id))
+        // then
+        XCTAssertEqual(2, set.count)
+        XCTAssertTrue(set.contains(.left(0)))
+        XCTAssertTrue(set.contains(.right(name)))
+    }
 }
