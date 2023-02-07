@@ -92,6 +92,10 @@ public extension Either {
 
 extension Either: Sendable where E: Sendable, A: Sendable {}
 
+// MARK: Hashable
+
+extension Either: Hashable where E: Hashable, A: Hashable {}
+
 // MARK: Foldable
 
 public extension Either {
