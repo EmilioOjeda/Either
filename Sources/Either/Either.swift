@@ -499,6 +499,63 @@ public extension Either where A: Sequence {
     }
 }
 
+// MARK: Partitioning
+
+public extension Sequence {
+    /// A pair of arrays (`lefts` and `rights`) as a result of partitioning a `Sequence`.
+    typealias Partition<Left, Right> = (lefts: [Left], rights: [Right])
+
+    /// A pair of arrays (`passed` and `failed`) as a result of partitioning a `Sequence`.
+    typealias EvaluatedPartition<Element> = (passed: [Element], failed: [Element])
+
+    /// It applies the `transform` function to each element of the sequence and returns a pair of arrays:
+    /// the first one is made of those values returned by `transform` that were wrapped in `Either.left`,
+    /// and the second one is made of those wrapped in `Either.right`.
+    /// - Parameter transform: The "split function" mapping the elements of the sequence to an `Either`.
+    /// - Returns: The partition (a pair of arrays) of `lefts` and `rights`.
+    func partitionMap<E, A>(
+        _ transform: (Element) -> Either<E, A>
+    ) -> Partition<E, A> {
+        reduce(into: Partition(lefts: [], rights: [])) { accumulation, element in
+            transform(element)
+                .fold(
+                    { e in accumulation.lefts.append(e) },
+                    { a in accumulation.rights.append(a) }
+                )
+        }
+    }
+
+    /// A pair of, `passed`, all the elements that satisfy the `predicate` and, `failed`, all the elements that do not.
+    /// - Parameter predicate: The "predicate function" splitting the elements of the sequence.
+    /// - Returns: The partition (a pair of arrays) of `passed` and `failed`.
+    func partition(
+        _ predicate: (Element) -> Bool
+    ) -> EvaluatedPartition<Element> {
+        let (failed, passed) = partitionMap { element in
+            predicate(element) ? .right(element) : .left(element)
+        }
+        return EvaluatedPartition(passed: passed, failed: failed)
+    }
+
+    /// It partitions a sequence of values of the type of `Either`.
+    /// - Returns: The partition (a pair of arrays) of `lefts` and `rights`.
+    func partitioned<E, A>() -> Partition<E, A> where Element == Either<E, A> {
+        partitionMap(id)
+    }
+
+    /// The `lefts` in a sequence of values of the type of `Either`.
+    /// - Returns: The `left` values.
+    func lefts<E, A>() -> [E] where Element == Either<E, A> {
+        compactMap(\.left)
+    }
+
+    /// The `rights` in a sequence of values of the type of `Either`.
+    /// - Returns: The `right` values.
+    func rights<E, A>() -> [A] where Element == Either<E, A> {
+        compactMap(\.right)
+    }
+}
+
 // MARK: To Optional
 
 public extension Either {

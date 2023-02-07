@@ -671,4 +671,55 @@ final class EitherTests: XCTestCase {
         // then
         XCTAssertEqual(either, either2)
     }
+
+    func testPartitionMap() {
+        // given
+        let numbers = (1...10).map(id)
+        // when
+        let partition = numbers
+            .partitionMap { number in
+                Either.if(number > 5, then: number, else: number)
+            }
+        // then
+        XCTAssertEqual([1, 2, 3, 4, 5], partition.lefts)
+        XCTAssertEqual([6, 7, 8, 9, 10], partition.rights)
+    }
+
+    func testPartition() {
+        // given
+        let numbers = (1...10).map(id)
+        // when
+        let partition = numbers
+            .partition { $0 > 5 }
+        // then
+        XCTAssertEqual([1, 2, 3, 4, 5], partition.failed)
+        XCTAssertEqual([6, 7, 8, 9, 10], partition.passed)
+    }
+
+    func testPartitioned() {
+        // given
+        let eithers = (1...10)
+            .map { number in
+                Either.if(number > 5, then: number, else: number)
+            }
+        // when
+        let partition = eithers.partitioned()
+        // then
+        XCTAssertEqual([1, 2, 3, 4, 5], partition.lefts)
+        XCTAssertEqual([6, 7, 8, 9, 10], partition.rights)
+    }
+
+    func testPartitionLeftsAndRights() {
+        // given
+        let eithers = (1...10)
+            .map { number in
+                Either.if(number > 5, then: number, else: number)
+            }
+        // when
+        let lefts = eithers.lefts()
+        let rights = eithers.rights()
+        // then
+        XCTAssertEqual([1, 2, 3, 4, 5], lefts)
+        XCTAssertEqual([6, 7, 8, 9, 10], rights)
+    }
 }
