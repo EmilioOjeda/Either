@@ -1,3 +1,17 @@
+# [0.10.0](https://github.com/EmilioOjeda/Either/compare/0.9.0...0.10.0) (2023-02-07)
+
+
+### Features
+
+* add a syntactic-sugar function for setting errors ([3201c84](https://github.com/EmilioOjeda/Either/commit/3201c84d2bee8f366c3a1ec899646cb289f1926d))
+* add Swift's version of Scala's `cond(test:right:left)` function ([3d0200d](https://github.com/EmilioOjeda/Either/commit/3d0200d4938f31670ec8d632efbfaf51ecd4272a))
+* allow running an effect over the value without mutating it ([d31bc5a](https://github.com/EmilioOjeda/Either/commit/d31bc5a8147d1d7361569baaa2ca4c1f88c362b8))
+* allow the partitioning of sequences by using the `Either` type ([e12944c](https://github.com/EmilioOjeda/Either/commit/e12944c591952dd1e776ce8db04c6ef41dd2323d))
+* enable flattening when having nested `Either` values ([5e9278a](https://github.com/EmilioOjeda/Either/commit/5e9278a3303ab809b4f44a6b0bf0eddc5094ee39))
+* extend the `Functor` and `Monad` implementation when the left is an `Error` ([841c01b](https://github.com/EmilioOjeda/Either/commit/841c01b5409504b497f3c983c016df2fc3075cf3))
+
+
+
 # [0.9.0](https://github.com/EmilioOjeda/Either/compare/0.8.0...0.9.0) (2023-02-04)
 
 
