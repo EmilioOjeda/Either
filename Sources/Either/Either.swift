@@ -356,6 +356,26 @@ public extension Either {
     ) rethrows -> Either<E, B> {
         try fold(Either<E, B>.left, transform)
     }
+
+    /// It flattens the value when having an `Either` on the right-hand side.
+    /// - Returns: A flattened `Either`.
+    func flatten<B>() -> Either<E, B> where A == Either<E, B> {
+        fold(Either<E, B>.left) { either in
+            either.flatMap(pure)
+        }
+    }
+
+    /// It flattens the value when having an `Either` on the left-hand side. This is analogous to `flatten` values on the left-hand side.
+    /// - Returns: A flattened `Either`.
+    func joinLeft<F>() -> Either<F, A> where E == Either<F, A> {
+        fold(id, Either<F, A>.right)
+    }
+
+    /// It flattens the value when having an `Either` on the right-hand side. This is analogous to `flatten`.
+    /// - Returns: A flattened `Either`.
+    func joinRight<B>() -> Either<E, B> where A == Either<E, B> {
+        flatten()
+    }
 }
 
 public extension Either where E: Swift.Error {
