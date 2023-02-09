@@ -5,12 +5,19 @@ on: [pull_request]
 jobs:
   build-and-test:
     name: Build & Test
-    runs-on: macos-12
+    runs-on: ${{ matrix.os }}
+    strategy:
+      matrix:
+        os: ['ubuntu-latest', 'macos-12']
     steps:
       - name: Checkout
         uses: actions/checkout@v3
         with:
           token: ${{ secrets.ACCESS_TOKEN }}
+      - name: Setup Swift
+        uses: swift-actions/setup-swift@v1.21.0
+        with: 
+          swift-version: "5.7"
       - name: Delete Package Cache
         run: swift package reset
       - name: Build Package
@@ -18,15 +25,18 @@ jobs:
       - name: Test Package
         run: swift test --parallel --enable-code-coverage
       - name: Install LLVM
+        if: ${{ matrix.os == 'macos-12' }}
         run: |
           brew list llvm || brew install llvm
           brew outdated llvm || brew upgrade llvm
       - name: Generate Code Coverage Report
+        if: ${{ matrix.os == 'macos-12' }}
         uses: maxep/spm-lcov-action@0.3.1
         with:
           file-format: text
           output-file: ./lcov.json
       - name: Upload Code Coverage Report
+        if: ${{ matrix.os == 'macos-12' }}
         uses: actions/upload-artifact@v3.1.1
         with:
           name: code-coverage-report
