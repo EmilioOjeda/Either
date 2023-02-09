@@ -301,7 +301,7 @@ public extension Either {
 
 public extension Either where E: Swift.Error {
     /// It maps the error on the left-hand side.
-    /// - Parameter transform: Transformation function to apply.
+    /// - Parameter transform: The transformation function to apply.
     /// - Returns: A new either functor result of the mapping function.
     func mapError<F>(
         _ transform: (E) -> F
