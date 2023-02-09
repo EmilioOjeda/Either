@@ -149,7 +149,7 @@ public extension Either {
         _ onLeft: (E) throws -> Value,
         _ onRightKeyPath: KeyPath<A, Value>
     ) rethrows -> Value {
-        try fold(onLeft, { a in a[keyPath: onRightKeyPath] })
+        try fold(onLeft) { a in a[keyPath: onRightKeyPath] }
     }
 
     /// Indistinctly the case for having a value on either left-hand or right-hand sides, it folds both projections into a single type.
