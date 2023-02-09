@@ -21,7 +21,7 @@ private enum FakeError: LocalizedError, Equatable {
     }
 }
 
-private func toStringThrowing<A>(_ value: A) throws -> String {
+private func toStringThrowing(_: some Any) throws -> String {
     throw FakeError.testError
 }
 
