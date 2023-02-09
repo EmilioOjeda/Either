@@ -710,7 +710,7 @@ final class EitherTests: XCTestCase {
 
     func testPartitionMap() {
         // given
-        let numbers = (1...10).map(id)
+        let numbers = (1 ... 10).map(id)
         // when
         let partition = numbers
             .partitionMap { number in
@@ -723,7 +723,7 @@ final class EitherTests: XCTestCase {
 
     func testPartition() {
         // given
-        let numbers = (1...10).map(id)
+        let numbers = (1 ... 10).map(id)
         // when
         let partition = numbers
             .partition { $0 > 5 }
@@ -734,7 +734,7 @@ final class EitherTests: XCTestCase {
 
     func testPartitioned() {
         // given
-        let eithers = (1...10)
+        let eithers = (1 ... 10)
             .map { number in
                 Either.if(number > 5, then: number, else: number)
             }
@@ -747,7 +747,7 @@ final class EitherTests: XCTestCase {
 
     func testPartitionLeftsAndRights() {
         // given
-        let eithers = (1...10)
+        let eithers = (1 ... 10)
             .map { number in
                 Either.if(number > 5, then: number, else: number)
             }
@@ -761,9 +761,9 @@ final class EitherTests: XCTestCase {
 
     func testHashable() {
         // given
-        let lefts = (1...5)
+        let lefts = (1 ... 5)
             .map { _ in Either.if(false, then: name, else: 0) }
-        let rights = (1...5)
+        let rights = (1 ... 5)
             .map { _ in Either.if(true, then: name, else: 0) }
         // when
         let set = Set([lefts, rights].flatMap(id))
