@@ -349,6 +349,81 @@ public extension Either {
     }
 }
 
+// MARK: Applicative Functor
+
+/// It lifts (wraps) the given value into the context of the functor, in this case, the `Either` functor.
+/// - Parameter a: The value to lift (wrap).
+/// - Returns: A lifted (wrapped) value - an instance of the functor containing the value.
+public func pure<E, A>(_ a: A) -> Either<E, A> { .right(a) }
+
+/// It provides a sequential application for the `Either` type.
+///
+/// This partial application returns a function that will be executed once `Either<E, A>` is provided.
+///
+/// A good example of this would be the implementation of the function...
+///
+///     apply<E, A, B>(
+///         _ ff: Either<E, (A) -> B>,
+///         _ fa: Either<E, A>
+///     ) -> Either<E, B>
+///
+/// ... where its implementation is nothing but that:
+///
+///     apply(ff)(fa)
+///
+/// - Parameter ff: The `transform` function lifted into an `Either` functor.
+/// - Returns: A partial application -- a function from `Either<E, A>` to `Either<E, B>`.
+public func apply<E, A, B>(_ ff: Either<E, (A) -> B>) -> (Either<E, A>) -> Either<E, B> {
+    { fa in fa.apply(ff) }
+}
+
+/// It provides a sequential application for the `Either` type.
+/// > This is the parameterized version of the `apply` partial application.
+/// - Parameters:
+///   - ff: The `transform` function lifted into an `Either` functor.
+///   - fa: A functor is lifting an `A` -- of type of `Either<E, A>`.
+/// - Returns: A functor is lifting a `B` after applying the `transform` function.
+public func apply<E, A, B>(_ ff: Either<E, (A) -> B>, _ fa: Either<E, A>) -> Either<E, B> {
+    apply(ff)(fa)
+}
+
+/// It provides a sequential application for the `Either` type.
+/// - Parameter ff: The key-path to read, lifted into an `Either` functor.
+/// - Returns: A partial application -- a function from `Either<E, A>` to `Either<E, B>`.
+public func apply<E, A, B>(_ ff: Either<E, KeyPath<A, B>>) -> (Either<E, A>) -> Either<E, B> {
+    { fa in fa.apply(ff) }
+}
+
+/// It provides a sequential application for the `Either` type.
+/// > This is the parameterized version of the `apply` (by key-path) partial application.
+/// - Parameters:
+///   - ff: The key-path to read, lifted into an `Either` functor.
+///   - fa: A functor is lifting an `A` -- of type of `Either<E, A>`.
+/// - Returns: A functor is lifting a `B` after reading and getting the the value in the key-path.
+public func apply<E, A, B>(_ ff: Either<E, KeyPath<A, B>>, _ fa: Either<E, A>) -> Either<E, B> {
+    apply(ff)(fa)
+}
+
+public extension Either {
+    /// It provides a sequential application for the `Either` type.
+    /// - Parameter ff: The `transform` function lifted into an `Either` functor.
+    /// - Returns: A functor is lifting a `B` after applying the `transform` function.
+    func apply<B>(
+        _ ff: Either<E, (A) -> B>
+    ) -> Either<E, B> {
+        ff.flatMap { transform in map(transform) }
+    }
+
+    /// It provides a sequential application for the `Either` type.
+    /// - Parameter ff: The key-path to read, lifted into an `Either` functor.
+    /// - Returns: A functor is lifting a `B` after reading and getting the the value in the key-path.
+    func apply<B>(
+        _ ff: Either<E, KeyPath<A, B>>
+    ) -> Either<E, B> {
+        ff.flatMap { keyPath in map(keyPath) }
+    }
+}
+
 // MARK: Monad
 
 public extension Either {
@@ -651,5 +726,3 @@ public extension Either {
 // MARK: Global Functions
 
 func id<A>(_ a: A) -> A { a }
-
-func pure<E, A>(_ a: A) -> Either<E, A> { .right(a) }
