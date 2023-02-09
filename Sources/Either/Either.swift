@@ -245,9 +245,43 @@ public extension Either where E == A {
 
 // MARK: Functor
 
+/// It provides an interface for applying the `transform` function to the value lifted (wraped) in a functor of type of `Either<E, A>`-
+/// - Parameter transform: The transformation function to apply.
+/// - Returns: A partial application that is meant to apply the `transform` function to the functor of type of `Either<E, A>`-
+public func fmap<E, A, B>(_ transform: @escaping (A) -> B) -> (Either<E, A>) -> Either<E, B> {
+    { fa in fa.map(transform) }
+}
+
+/// It provides an interface for applying the `transform` function to the value lifted (wraped) in a functor of type of `Either<E, A>`-
+/// > This is the parameterized version of the `fmap` partial application.
+/// - Parameters:
+///   - transform: The transformation function to apply.
+///   - fa: A functor is lifting an `A` -- of type of `Either<E, A>`.
+/// - Returns: A functor is lifting a `B` after applying the `transform` function.
+public func fmap<E, A, B>(_ transform: @escaping (A) -> B, _ fa: Either<E, A>) -> Either<E, B> {
+    fmap(transform)(fa)
+}
+
+/// It provides an interface to get the nested value in the key-path from the value lifted (wraped) in a functor of type of `Either<E, A>`.
+/// - Parameter keyPath: The key-path to read.
+/// - Returns: A partial application that is meant to read from the key-path in the functor of type of `Either<E, A>`-
+public func fmap<E, A, B>(_ keyPath: KeyPath<A, B>) -> (Either<E, A>) -> Either<E, B> {
+    { fa in fa.map(keyPath) }
+}
+
+/// It provides an interface to get the nested value in the key-path from the value lifted (wraped) in a functor of type of `Either<E, A>`.
+/// > This is the parameterized version of the `fmap` (by key-path) partial application.
+/// - Parameters:
+///   - keyPath: The key-path to read.
+///   - fa: A functor is lifting an `A` -- of type of `Either<E, A>`.
+/// - Returns: A functor is lifting a `B` after reading and getting the value in the key-path.
+public func fmap<E, A, B>(_ keyPath: KeyPath<A, B>, _ fa: Either<E, A>) -> Either<E, B> {
+    fmap(keyPath)(fa)
+}
+
 public extension Either {
     /// It applies the transformation function if there is a value on the right-hand side.
-    /// - Parameter transform: Transformation function to apply.
+    /// - Parameter transform: The transformation function to apply.
     /// - Returns: A new either functor result of the mapping function.
     func map<B>(
         _ transform: (A) throws -> B

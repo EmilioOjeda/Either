@@ -181,6 +181,26 @@ final class EitherTests: XCTestCase {
         XCTAssertEqual(name.count, eitherAfterMap.right)
     }
 
+    func testFmap() {
+        // given
+        let eitherString = Either<FakeError, String>.right(name)
+        // when
+        let eitherInt = fmap(stringLength, eitherString)
+        // then
+        XCTAssertTrue((eitherInt as Any) is Either<FakeError, Int>)
+        XCTAssertEqual(name.count, eitherInt.right)
+    }
+
+    func testFmapByKeyPath() {
+        // given
+        let eitherString = Either<FakeError, String>.right(name)
+        // when
+        let eitherInt = fmap(\String.count, eitherString)
+        // then
+        XCTAssertTrue((eitherInt as Any) is Either<FakeError, Int>)
+        XCTAssertEqual(name.count, eitherInt.right)
+    }
+
     func testMapError() {
         // given
         let either: Either<FakeError, String> = .left(.testError)
