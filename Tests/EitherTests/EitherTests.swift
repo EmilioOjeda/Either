@@ -266,6 +266,22 @@ final class EitherTests: XCTestCase {
         XCTAssertThrowsError(try either.orElse(.right(0)).bimap(\Int.description, toStringThrowing(_:)))
     }
 
+    func testApply() {
+        // given
+        let stringLenghtKeyPath = \String.count
+        let stringLenght: (String) -> Int = { $0[keyPath: stringLenghtKeyPath] /* same as `$0.count` */ }
+        let eitherString: Either<FakeError, String> = pure(name)
+        let eitherStringError: Either<FakeError, String> = .error(.testError)
+        // when
+        let eitherStringLenght = apply(pure(stringLenght), eitherString)
+        let eitherStringLenghtError = apply(pure(stringLenght), eitherStringError)
+        let eitherStringLenghtKeyPath = apply(pure(stringLenghtKeyPath), eitherString)
+        // then
+        XCTAssertEqual(name.count, eitherStringLenght.right)
+        XCTAssertEqual(name.count, eitherStringLenghtKeyPath.right)
+        XCTAssertEqual(FakeError.testError, eitherStringLenghtError.left)
+    }
+
     func testFlatMap() {
         let getStringLength: (String) -> Either<String, Int?> = { string in .right(string.count) }
         // given
