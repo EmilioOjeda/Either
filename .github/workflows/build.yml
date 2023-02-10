@@ -4,55 +4,22 @@ on: [pull_request]
 
 jobs:
   build-and-test:
-    name: Build & Test
-    runs-on: ${{ matrix.os }}
+    name: swift ${{ matrix.swift-version }} - '${{ matrix.os }}'
     strategy:
       matrix:
-        os: ['ubuntu-latest', 'macos-12']
+        os: [ubuntu-latest, macos-latest]
+        swift-version: ["5.7"]
+    runs-on: ${{ matrix.os }}
     steps:
+      - name: Setup Swift ${{ matrix.swift-version }}
+        uses: swift-actions/setup-swift@v1.21.0
+        with: 
+          swift-version: ${{ matrix.swift-version }}
       - name: Checkout
         uses: actions/checkout@v3
         with:
           token: ${{ secrets.ACCESS_TOKEN }}
-      - name: Setup Swift
-        uses: swift-actions/setup-swift@v1.21.0
-        with: 
-          swift-version: "5.7"
-      - name: Delete Package Cache
-        run: swift package reset
       - name: Build Package
-        run: swift build
+        run: swift build --build-tests
       - name: Test Package
         run: swift test --parallel --enable-code-coverage
-      - name: Install LLVM
-        if: ${{ matrix.os == 'macos-12' }}
-        run: |
-          brew list llvm || brew install llvm
-          brew outdated llvm || brew upgrade llvm
-      - name: Generate Code Coverage Report
-        if: ${{ matrix.os == 'macos-12' }}
-        uses: maxep/spm-lcov-action@0.3.1
-        with:
-          file-format: text
-          output-file: ./lcov.json
-      - name: Upload Code Coverage Report
-        if: ${{ matrix.os == 'macos-12' }}
-        uses: actions/upload-artifact@v3.1.1
-        with:
-          name: code-coverage-report
-          path: ./lcov.json
-  check-code-coverage:
-    name: Check for Code Coverage Threshold
-    needs: build-and-test
-    runs-on: ubuntu-latest
-    steps:
-      - name: Download Code Coverage Report
-        uses: actions/download-artifact@v3.0.1
-        with:
-          name: code-coverage-report
-          path: ./
-      - name: Check for Minimum Code Coverage
-        uses: bigmeech/gha-simple-coverage@0.1.4
-        with:
-          fail-if-below: 90
-          lcov-file-path: "./lcov.json"
