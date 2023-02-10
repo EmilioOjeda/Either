@@ -1,3 +1,14 @@
+# [0.11.0](https://github.com/EmilioOjeda/Either/compare/0.10.0...0.11.0) (2023-02-10)
+
+
+### Features
+
+* add the `fmap` functions to the Functor interface ([f05d155](https://github.com/EmilioOjeda/Either/commit/f05d155ffeca08effd8274e7b7163007afff8f4b))
+* add the `Hashable` protocol conformance ([3fe3628](https://github.com/EmilioOjeda/Either/commit/3fe3628b28e51d27a4f8426c9e92929906a8d35c))
+* make `Either` an Applicative Functor ([b42022d](https://github.com/EmilioOjeda/Either/commit/b42022dcbc64299846a914cc57c8bff7c8e8bede))
+
+
+
 # [0.10.0](https://github.com/EmilioOjeda/Either/compare/0.9.0...0.10.0) (2023-02-07)
 
 
